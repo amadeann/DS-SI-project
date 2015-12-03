@@ -76,7 +76,10 @@ img {
 <pre class="r"><code>n &lt;- 1000
 sampleSize &lt;- 40
 lambda &lt;- 0.2</code></pre>
-<p>For the purpose of presentation, random sample of <strong>1000</strong> means of exponential distribution needs to be generated. Each mean is calculated based on <strong>40</strong> values from exponential distribution with parameter lambda of <strong>0.2</strong>. In turnn in order to obtain the sample, <strong>410^{4}</strong> random numbers need to be generated.</p>
+<p>For the purpose of presentation, random sample of <strong>1,000</strong> means of exponential distribution needs to be generated. Each mean is calculated based on <strong>40</strong> values from exponential distribution with parameter lambda of <strong>0.2</strong>. In turn, in order to obtain the sample, <strong>40,000</strong> random numbers need to be generated.</p>
+<p>The following code generates the sample.</p>
+<pre class="r"><code>rexp(5, rate = lambda)</code></pre>
+<pre><code>## [1]  0.8372163 10.0800444 11.6751503  0.1519975  2.6047073</code></pre>
 <p>Include English explanations of the simulations you ran, with the accompanying R code. Your explanations should make clear what the R code accomplishes.</p>
 </div>
 <div id="sample-mean-versus-theoretical-mean" class="section level2">

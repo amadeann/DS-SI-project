@@ -11,17 +11,44 @@ This paper describes the application of Central Limit Theorem to the distributio
 
 ## Simulations
 
-```{r, echo = TRUE}
+```{r, echo = FALSE}
+# Setting the global number formatting option
+library(knitr)
+knit_hooks$set(inline = function(x) {
+  prettyNum(x, big.mark=",")
+})
+```
+
+```{r , echo = TRUE}
 n <- 1000
 sampleSize <- 40
 lambda <- 0.2
 ```
 
-For the purpose of presentation, random sample of **`r n`** means of exponential distribution needs to be generated. Each mean is calculated based on **`r sampleSize`** values from exponential distribution with parameter lambda of **`r lambda`**. In turnn in order to obtain the sample, **`r n * sampleSize`** random numbers need to be generated.
+For the purpose of presentation, random sample of **`r n`** means of exponential distribution needs to be generated. Each mean is calculated based on **`r sampleSize`** values from exponential distribution with parameter $\lambda$ of **`r lambda`**. In turn, in order to obtain the sample, **`r (n*sampleSize)`** random numbers need to be generated.
 
-Include English explanations of the simulations you ran, with the accompanying R code. Your explanations should make clear what the R code accomplishes.
+The following code generates the sample.
+
+```{R, echo = TRUE}
+set.seed(2015)
+means <- apply(matrix(rexp(n*sampleSize, rate = lambda),n,sampleSize),1,mean)
+```
 
 ## Sample Mean versus Theoretical Mean
+
+The sample mean can be calculated with the following code.
+
+```{r, echo, TRUE}
+sampleMean <- mean(means)
+sampleMean
+```
+
+Theoretical mean of a sample coming from exponential distribution equals $\frac{1}{\lambda}$.
+Assuming $\lambda$ of `r lambda`, theoretical mean is $\frac{1}{\lambda} = \frac{1}{`r lambda`} = `r 1/lambda`$.
+
+The best way to assess the magnitude of a difference in exmpirical and theoretical means is looking at a graph, which shows the histogram of expirical means.
+
+
 
 Include figures with titles. In the figures, highlight the means you are comparing. Include text that explains the figures and what is shown on them, and provides appropriate numbers.
 
@@ -35,3 +62,7 @@ Via figures and text, explain how one can tell the distribution is approximately
 
 Here I can show the histogram based on the empirical distribution and draw a normal distribution curve on top of it, explaining how they are similar. 
 In addition to that, references to proper statistical tests of normality will be useful.
+
+## Sources
+
+1. [LaTEX code generator](https://www.codecogs.com/latex/eqneditor.php)
