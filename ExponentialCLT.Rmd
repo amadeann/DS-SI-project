@@ -1,12 +1,12 @@
 ---
 title: "Application of Central Limit Theorem to Exponential Distribution - Example"
-author: "Amade Annissimo"
+author: "Amade A."
 date: "December 2, 2015"
 output: pdf_document
 ---
 ## Overview
 
-This paper describes the application of Central Limit Theorem to the distribution of means of exponential distribution. The emphasis is put on empirical presentation of a problem, with a random sample of 1000 means and comparing their distribution with the theoretical distribution of the man and theoretical variance.
+This paper describes the application of Central Limit Theorem to the distribution of means of exponential distribution. The emphasis is put on empirical presentation of a problem, with a random sample of 1000 means and comparing their distribution with the theoretical distribution of the mean and theoretical variance.
 
 
 ## Simulations
@@ -38,7 +38,7 @@ means <- apply(matrix(rexp(n*sampleSize, rate = lambda),n,sampleSize),1,mean)
 
 The sample mean can be calculated with the following code.
 
-```{r, echo, TRUE}
+```{r, echo = TRUE}
 sampleMean <- mean(means)
 sampleMean
 ```
@@ -48,20 +48,70 @@ Assuming $\lambda$ of `r lambda`, theoretical mean is $\frac{1}{\lambda} = \frac
 
 The best way to assess the magnitude of a difference in exmpirical and theoretical means is looking at a graph, which shows the histogram of expirical means.
 
+```{r}
+library(ggplot2)
+m <- ggplot() + aes(x=means)
+m <- m + geom_histogram(fill = "navy", binwidth = .15) 
+m <- m + geom_vline(xintercept = (1/lambda), colour = "red", size = 1)
+m + ggtitle("Theoretical mean vs. empirical mean distribution")
+```
 
-
-Include figures with titles. In the figures, highlight the means you are comparing. Include text that explains the figures and what is shown on them, and provides appropriate numbers.
+Theoretical sample mean is shown as red line. It can be clearly seen on the graph, that the means are centered around its value (`r 1/lambda`). In relative terms, sample mean is only `r abs(round(((sampleMean - 1/lambda)/(1/lambda))*100,2))`% different from theoretical mean (calculated as $abs(\frac{sample \hspace{2pt} mean - theoretical \hspace{2pt} mean}{theoretical \hspace{2pt} mean})$).
 
 ## Sample Variance versus Theoretical Variance
 
-Include figures (output from R) with titles. Highlight the variances you are comparing. Include text that explains your understanding of the differences of the variances.
+Theoretical variance of the sampling distribution of the mean is calculated as:
+
+$\sigma_{M}^{2} = \frac{\sigma^{2}}{N}$
+
+where $\sigma^{2}$ is a theoretical variance of the distribution and $N$ is a sample size. In the case of exponential distribution, theoretical variance equals $\frac{1}{\lambda^{2}}$. With $\lambda = `r lambda`$ and $N = `r sampleSize`$, theoretical variance of the sampling distribution of the mean equals 
+```{r, echo = TRUE}
+theorVar <- (1/lambda^2)/(sampleSize)
+theorVar
+```
+
+Unbiased estimator of the population variance, based on the sample data, calculated using *var()* function equals `r round(var(means),3)`. It is `r round(abs((var(means)-theorVar)/(theorVar)*100),2)`% different from theoretical variance.
+
+Variability of the sample mean is shown on the graph below.
+
+```{r, echo = TRUE}
+SDmarker <- function(x) {  
+    if (x > 2*sqrt(theorVar)){
+        "x > 2 SD"
+    } else if (x > sqrt(theorVar)){
+        "1 SD < x <= 2 SD"
+    } else {
+        "x <= 1 SD"
+    }
+}
+SDband <- as.factor(sapply(abs(means - sampleMean),SDmarker))
+
+m <- ggplot() + aes(x=means, fill = SDband)
+m <- m + geom_histogram(binwidth = .15) 
+m <- m + geom_vline(xintercept = sampleMean, colour = "red", size = .5)
+m <- m + geom_vline(xintercept = sampleMean + c(-1,1)*sqrt(theorVar),
+                    colour = "green", size = .5)
+m <- m + geom_vline(xintercept = sampleMean + c(-2,2)*sqrt(theorVar),
+                    colour = "blue", size = .5)
+m + ggtitle("Variability of the sample mean")
+```
+
+Sample mean (`r sampleMean`) is marked in red. Area marked in pink, represents the means with values within 1 standard deviation (its theoretical value) form the sample mean. Area in green - those between 1 and 2 standard deviations from the mean. Means, which fell more than 2 standard deviations from the mean are represented by the light blue area.
 
 ## Distribution
 
-Via figures and text, explain how one can tell the distribution is approximately normal.
+In order to test the assumption of normality of the sample mean distribution, a histogram of empirical values will be compared with a normal distribution with a mean and variance equal theoretical mean and theoretical variance of the analyzed sampling distribution - $N(`r 1/lambda`, `r theorVar`)$. Line representing normal distribution is shown in red.
 
-Here I can show the histogram based on the empirical distribution and draw a normal distribution curve on top of it, explaining how they are similar. 
-In addition to that, references to proper statistical tests of normality will be useful.
+```{r, echo = TRUE}
+
+m <- ggplot() + aes(x=means)
+m <- m + geom_histogram(aes(y = ..density..), binwidth = .15, fill = "navy") 
+m <- m + stat_function(fun = dnorm,
+                       args = list(mean = 1/lambda, sd = sqrt(theorVar)), colour = "red")
+m + ggtitle("Empirical distribution vs. normal distribution")
+```
+
+Based on the visual comparison, it can be concluded that the empirical distribution is approximately normal.
 
 ## Sources
 
