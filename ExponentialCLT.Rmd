@@ -96,7 +96,7 @@ m <- m + geom_vline(xintercept = sampleMean + c(-2,2)*sqrt(theorVar),
 m + ggtitle("Variability of the sample mean")
 ```
 
-Sample mean (`r sampleMean`) is marked in red. Area marked in pink, represents the means with values within 1 standard deviation (its theoretical value) form the sample mean. Area in green - those between 1 and 2 standard deviations from the mean. Means, which fell more than 2 standard deviations from the mean are represented by the light blue area.
+Sample mean (`r round(sampleMean,3)`) is marked in red. Area marked in pink, represents the means with values within 1 standard deviation (its theoretical value) form the sample mean. Area in green - those between 1 and 2 standard deviations from the mean. Means, which fell more than 2 standard deviations from the mean are represented by the light blue area.
 
 ## Distribution
 
