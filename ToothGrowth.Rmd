@@ -1,0 +1,65 @@
+---
+title: "Analysis of the Effect of Vitamin C on Tooth Growth in Guinea Pigs"
+author: "Amade A."
+date: "December 5, 2015"
+output: pdf_document
+---
+
+The paper analyzes the effect of vitamin C on tooth growth in guinea pigs. The data set ToothGrowth for the analysis comes from a *datasets* R package and was originally described by C.I. Bliss in *The Statistics of Bioassay* in 1952.
+
+## Dataset overview
+
+Data set has been loaded into R with the following code.
+
+```{R, echo = TRUE}
+library(datasets)
+data("ToothGrowth")
+```
+
+Basic features of the data can be investigated using the 
+*str()* function.
+
+```{R, echo = TRUE}
+str(ToothGrowth)
+```
+
+ToothGrowth dataset consists of 3 variables and 60 observations. Each observation represents one guinea pig. Variable *len* shows the response in growth of dontoblasts (teeth). Two other variables, *supp* and *dose*  indicate the use of different supplement form (ascorbic acid or orange juice) and different doses respectively (0.5, 1 or 2 mg). Each combination of supplement type and dose was tested on 10 guinea pigs (total of 60 subjects).
+
+It is worth analyzing the mean tooth growth by different variable combinations. Respective values are shown in the table below.
+
+```{r, echo = TRUE}
+library(dplyr, warn.conflicts = FALSE)
+library(reshape2, warn.conflicts = FALSE)
+# Average tooth growth by parameter combination
+ToothGrowth %>% 
+    recast(formula = supp ~ dose, mean, id.var = c("supp", "dose"), measure.var = "len")
+```
+
+Looking at the values, it can be seen, that on average OJ supplementation, compared to ascorbic acid supplementation, resulted in higher tooth growth, especially at lower doses. 
+Also, the growth in dosage, seemed to be correlated with higher growth in teeth.
+Both hypothesis will be tested in the subsequent parts of the paper.
+
+For quick visual comparison, variability in the tooth growth by form of supplementation is also show on the graph below.
+
+```{r, echo = TRUE}
+library(ggplot2)
+m <- ggplot(data = ToothGrowth, aes(y = len, x = as.factor(dose), fill = supp)) 
+m <- m + geom_boxplot()
+m <- m + ggtitle("Tooth growth response by supplement type and dosage size")
+m <- m + xlab("Dosage size")
+m <- m + ylab("Tooth growth response")
+m + labs(fill = "Supplement")
+```
+
+## Influence of supplement type on tooth growth
+
+Use confidence intervals and/or hypothesis tests to compare tooth growth by supp and dose. (Only use the techniques from class, even if there's other approaches worth considering)
+
+## Influence of supplement dose on tooth growth
+
+## Conclusions
+
+State your conclusions and the assumptions needed for your conclusions. 
+
+Conclusions can be assumed true at the mentioned significance levels, assuming that the observations (teeth growth response) are coming from normal distributions with equal variances. 
+If the assumption of normally distributed teeth growth response was not true, the results would nevertheless be somewhat meaningful based on the Central Limit Theorem (convergence of the distribution of sample mean to normal distribution).
