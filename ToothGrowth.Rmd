@@ -1,9 +1,11 @@
 ---
 title: "Analysis of the Effect of Vitamin C on Tooth Growth in Guinea Pigs"
 author: "Amade A."
-date: "December 5, 2015"
+date: "December 7, 2015"
 output: pdf_document
 ---
+
+## Introduction
 
 The paper analyzes the effect of vitamin C on tooth growth in guinea pigs. The data set ToothGrowth for the analysis comes from a *datasets* R package and was originally described by C.I. Bliss in *The Statistics of Bioassay* in 1952.
 
@@ -51,15 +53,104 @@ m <- m + ylab("Tooth growth response")
 m + labs(fill = "Supplement")
 ```
 
+Based on the graph below, variability in tooth growth varies across different form of supplementation. E.g. low dose (0.5 mg) supplementation with ascorbic acid has relatively concentrated values with no outliers, whereas supplementation with high doses (2 mg) resulted in much higher variability.
+
 ## Influence of supplement type on tooth growth
 
-Use confidence intervals and/or hypothesis tests to compare tooth growth by supp and dose. (Only use the techniques from class, even if there's other approaches worth considering)
+This section will test the hypothesis of differences in average tooth growth reaction as a result of supplementation with orange juice and ascorbic acid.
+
+```{r, echo = TRUE}
+m <- ggplot(data = ToothGrowth, aes(y = len, x = as.factor(supp)) )
+m <- m + geom_boxplot()
+m <- m + ggtitle("Tooth growth response by supplement type")
+m <- m + xlab("Supplement type")
+m + ylab("Tooth growth response")
+```
+
+As the observations cannot be paired (each supplement was treated to a different guinea pig group) and variances should not be assumed equal (supplementation with ascorbic acid seems to result in higher variability), T-test for independent groups will be performed.
+
+Expressed formally, test hypothesis has the following form:
+
+$H_{0}:$ Average response in tooth growth is equal across two supplement forms.
+
+Confidence intervals for t statistics are calculated with the following formula.
+$$
+\bar Y - \bar X \pm t_{df} \times \left(\frac{s_x^2}{n_x} + \frac{s_y^2}{n_y}\right)^{1/2}
+$$
+where $t_{df}$ is calculated with degrees of freedom
+$$
+df=    \frac{\left(S_x^2 / n_x + S_y^2/n_y\right)^2}
+    {\left(\frac{S_x^2}{n_x}\right)^2 / (n_x - 1) +
+      \left(\frac{S_y^2}{n_y}\right)^2 / (n_y - 1)}
+$$
+
+In our case, supplementation with orange juice is denoted as $Y$ and wtih ascorbic acid as $X$. Hypothesis of equal variances will be rejected at 95% confidence level, if the confidence interval will not contain 0. Confidence interval can be calculated with the following code.
+
+```{r, echo = TRUE}
+meanX <- mean(ToothGrowth$len[ToothGrowth$supp=="VC"])
+meanY <- mean(ToothGrowth$len[ToothGrowth$supp=="OJ"])
+varX <- var(ToothGrowth$len[ToothGrowth$supp=="VC"])
+varY <- var(ToothGrowth$len[ToothGrowth$supp=="OJ"])
+n <- 30
+df <- ((varX/n + varY/n)^2)/((varX/n)/(n-1) + (varY/n)/(n-1))
+confInt <- meanY - meanX + c(-1,1)*qt(0.975,df)*sqrt(varX/n + varY/n)
+confInt
+```
+
+As the confidence interval calculated above (variable *confInt*) contains 0, the null hypothesis of equal variances cannot be rejected at 95% confidence level.
 
 ## Influence of supplement dose on tooth growth
 
+It is also worth analyzing the vitamin C dosage size on tooth growth. 
+
+Empirical values are presented on the graph below.
+
+```{r, echo = TRUE}
+m <- ggplot(data = ToothGrowth, aes(y = len, x = as.factor(dose)) )
+m <- m + geom_boxplot()
+m <- m + ggtitle("Tooth growth response by dosage level")
+m <- m + xlab("Dosage (in mg)")
+m + ylab("Tooth growth response")
+```
+
+As there are 3 different dosage levels (0.5 mg, 1 mg and 2 mg), all pairs will be tested separately, resulting in 3 confidence intervals. Null hypothesis for each pair assumes that the mean tooth growth response is equal for different dosage levels. 
+
+Confidence intervals will be calculated using the *t.test()* function.
+
+```{r, echo = TRUE}
+tTest <- list()
+tTest[[1]] <- t.test(len ~ dose,
+       paired = FALSE, 
+       var.equal = FALSE,
+       data = ToothGrowth[ToothGrowth$dose != 2,]
+       )
+tTest[[2]] <- t.test(len ~ dose,
+       paired = FALSE, 
+       var.equal = FALSE,
+       data = ToothGrowth[ToothGrowth$dose != 1,]
+       )
+tTest[[3]] <- t.test(len ~ dose,
+       paired = FALSE, 
+       var.equal = FALSE,
+       data = ToothGrowth[ToothGrowth$dose != .5,]
+       )
+```
+
+Confidence intervals for each pair of values equaled:
+
+- 0.5 mg vs. 1 mg: (`r tTest[[1]]$conf.int[1]`, `r tTest[[1]]$conf.int[2]`)
+- 0.5 mg vs. 2 mg: (`r tTest[[2]]$conf.int[1]`, `r tTest[[2]]$conf.int[2]`)
+- 1 mg vs. 2 mg: (`r tTest[[3]]$conf.int[1]`, `r tTest[[3]]$conf.int[2]`)
+
+As can be seen, none of the intervals contain 0, therefore null hypotheses of equal means across dosage sizes can be rejected at 95% conficence level.
+
+
 ## Conclusions
 
-State your conclusions and the assumptions needed for your conclusions. 
+Based on the analysis above, there are two main conclusions:
 
-Conclusions can be assumed true at the mentioned significance levels, assuming that the observations (teeth growth response) are coming from normal distributions with equal variances. 
-If the assumption of normally distributed teeth growth response was not true, the results would nevertheless be somewhat meaningful based on the Central Limit Theorem (convergence of the distribution of sample mean to normal distribution).
+1. Reaction in tooth growth is not significantly different for treatment with orange juice vs. treatment with ascorbic acid.
+2. Reaction in tooth growth varies significantly across the vitamin C dosage size across all tested dosage levels (0.5 mg, 1 mg and 2 mg).
+
+Conclusions can be assumed true at the mentioned significance levels, assuming that the observations (teeth growth response) are coming from normal distributions with variances not equal (assumption of different variances justified in the previous sections). 
+If the assumption of normally distributed teeth growth response was not true, the results would nevertheless be meaningful based on the Central Limit Theorem (convergence of the distribution of sample mean to normal distribution).

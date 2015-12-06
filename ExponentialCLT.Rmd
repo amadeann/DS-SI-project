@@ -1,7 +1,7 @@
 ---
 title: "Application of Central Limit Theorem to Exponential Distribution - Example"
 author: "Amade A."
-date: "December 2, 2015"
+date: "December 7, 2015"
 output: pdf_document
 ---
 ## Overview
